@@ -823,11 +823,25 @@ html,body{overscroll-behavior:none}
 .ico{box-shadow:none!important;background-image:none!important}
 .ico[style*="--c"]{background:var(--c,var(--pc))!important;color:#fff!important;filter:saturate(.8) brightness(.94)}
 /* ===== Плавная смена цветов: без подёргивания экрана и без сброса прокрутки ===== */
-#app.nvnoanim *{animation:none!important;transition:none!important}
-</style>
-<style>
-/* ===== Баннер «Нет связи» ===== */
-#nvoff{display:none;position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:1000;background:var(--tx);color:var(--bg);padding:9px 16px;border-radius:14px;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.25);animation:ts .3s var(--e);max-width:calc(100% - 32px);text-align:center}
+#app.nvnoanim *{transition:none!important}
+.nvbody.nvnoin,.nvbody.nvnoin *{animation:none!important}
+.pg.pr.nvdone:not(.out),.pg.pr.nvdone:not(.out) *{animation:none!important}
+
+/* ===== вход/регистрация: детали ===== */
+.ff input{transition:box-shadow .25s var(--e),background-color .4s}
+.ff input:focus{box-shadow:0 0 0 3px color-mix(in srgb,var(--ac) 24%,transparent)}
+.ff.bad{animation:sh .35s}
+.ff.bad input{box-shadow:0 0 0 2px color-mix(in srgb,var(--er) 55%,transparent)}
+.ff.bad input+span,.ff.bad input:focus+span{color:var(--er)}
+.ff.bad i{background:var(--er);transform:scaleX(1)}
+.eye{top:10px;padding:9px 11px;line-height:0}
+.eye svg{width:22px;height:22px;display:block}
+.eye .sl{stroke-dasharray:24;stroke-dashoffset:24;transition:stroke-dashoffset .3s var(--e)}
+.eye.on .sl{stroke-dashoffset:0}
+.eye:active svg{transform:scale(.85)}.eye svg{transition:transform .2s var(--es)}
+@keyframes okp{from{opacity:0;transform:rotate(45deg) scale(.3)}}
+.ff.ok::after{content:"";position:absolute;right:22px;top:20px;width:7px;height:14px;border:solid var(--ac);border-width:0 2.5px 2.5px 0;transform:rotate(45deg);animation:okp .35s var(--es)}
+.ff.caps::after{content:"Caps Lock";position:absolute;right:56px;top:9px;font-size:11px;font-weight:500;color:#f5a524;animation:fi .2s var(--e)}
 </style>
 </head>
 <body>
@@ -941,14 +955,18 @@ function avs(c){var p=pal(SEEDS[c==null?0:c],false);return'background:'+p.pc+';c
 function pav(x){return ICN[x.e]?icn(x.e):esc((x.n||'N').charAt(0).toUpperCase())}
 function avp(x){return x.c==null?'':avs(x.c)}
 function avt(){return ICN[S.acc.em]?icn(S.acc.em):esc((S.acc.n||'N').charAt(0).toUpperCase())}
-function vt(f){if(document.startViewTransition&&!matchMedia('(prefers-reduced-motion: reduce)').matches)document.startViewTransition(f);else f()}
+function vt(f){f()}
 function ltr(t){return t.split('').map(function(c,i){return'<span style="animation-delay:'+(120+i*40)+'ms">'+(c==' '?'&nbsp;':c)+'</span>'}).join('')}
-function pf2(id,l,t,x){return'<label class="ff"><input id="'+id+'" type="'+(t||'text')+'" placeholder=" " autocomplete="off" autocapitalize="off" spellcheck="false" '+(x||'')+'><span>'+l+'</span><i></i>'+(t=='password'?'<button type="button" class="eye" data-a="eye">Показать</button>':'')+'</label>'}
+var EYE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="sl" d="M4 4l16 16"/></svg>';
+function pf2(id,l,t,x){return'<label class="ff"><input id="'+id+'" type="'+(t||'text')+'" placeholder=" " autocomplete="off" autocapitalize="off" spellcheck="false" '+(x||'')+'><span>'+l+'</span><i></i>'+(t=='password'?'<button type="button" class="eye" data-a="eye" aria-label="Показать пароль">'+EYE+'</button>':'')+'</label>'}
 function authForm(m){var E2='<div class="err" id="er"></div>',ti,sub,h;
  if(m=='l'){ti='Вход';sub='С возвращением в NovaGram';h=pf2('lu','Имя пользователя')+pf2('lp','Пароль','password')+E2+'<button class="btn" data-a="login">Войти</button><button class="btn tx" data-a="rs">Восстановить из файла</button>'}
  else if(m=='r'){ti='Регистрация';sub='Аккаунт за минуту';h=pf2('rn','Ваше имя')+pf2('ru','Имя пользователя','text','maxlength="32"')+pf2('rp','Пароль','password')+'<div class="sbar"><b id="sb"></b></div><div class="hn" id="pt">Минимум 6 символов</div>'+E2+'<button class="btn" data-a="reg">Продолжить</button>'}
  return{ti:ti,sub:sub,h:h}}
-function authInit(){var lu=$('#lu');if(lu&&ls('nv_lu'))lu.value=ls('nv_lu');var q=$('#rp');if(q)q.oninput=function(){var v=q.value,n=(v.length>=6)+(v.length>=10)+(/\d/.test(v)&&/[a-zA-Z]/.test(v))+(/[A-Z]/.test(v)||/[^a-zA-Z0-9]/.test(v)),b=$('#sb');n=v?Math.max(1,n):0;b.style.width=n*25+'%';b.style.background=n<2?'var(--er)':'var(--ac)';$('#pt').textContent=['Минимум 6 символов','Слабый пароль','Ненадёжный','Хороший пароль','Отличный пароль'][n]};
+function authInit(){var lu=$('#lu');if(lu&&ls('nv_lu'))lu.value=ls('nv_lu');var q=$('#rp');if(q)q.oninput=function(){var v=q.value,n=(v.length>=6)+(v.length>=10)+(/\d/.test(v)&&/[a-zA-Z]/.test(v))+(/[A-Z]/.test(v)||/[^a-zA-Z0-9]/.test(v)),b=$('#sb');n=v?Math.max(1,n):0;b.style.width=n*25+'%';b.style.background=['var(--er)','var(--er)','#f5a524','var(--ac)','#3ecf8e'][n];$('#pt').textContent=['Минимум 6 символов','Слабый пароль','Ненадёжный','Хороший пароль','Отличный пароль'][n]};
+ A.querySelectorAll('.auth .ff input').forEach(function(i){var f=i.parentNode,pw=!!f.querySelector('.eye');
+  i.addEventListener('input',function(){f.classList.remove('bad');var v=i.value;if(i.id=='ru')f.classList.toggle('ok',/^[a-z0-9_]{5,32}$/i.test(v));if(i.id=='rn')f.classList.toggle('ok',v.trim().length>1)});
+  if(pw){var cp=function(e){f.classList.toggle('caps',!!(e.getModifierState&&e.getModifierState('CapsLock')))};i.addEventListener('keydown',cp);i.addEventListener('keyup',cp);i.addEventListener('blur',function(){f.classList.remove('caps')})}});
  A.querySelectorAll('.auth input').forEach(function(i){i.onkeydown=function(e){if(e.key=='Enter'){var b=A.querySelector('.auth .btn');if(b&&!b.disabled)b.click()}}})}
 function swm(m){var fm=$('.fm'),d=m=='r'?1:-1,oh=fm.offsetHeight,f=authForm(m),p=$('.ah p');S.sw=1;S.pm=m;
  fm.style.height=oh+'px';fm.style.overflow='hidden';fm.style.setProperty('--d',(-30*d)+'px');fm.classList.add('xo');p.style.opacity=0;
@@ -965,7 +983,7 @@ function auth(m,msg){if(S.sw)return;A.classList.remove('in');var pm=S.pm||'l',lo
  var u=A.querySelector('.tabs u');if(u)requestAnimationFrame(function(){requestAnimationFrame(function(){u.className=m=='r'?'r':''})});if(m!='v')S.pm=m;
  authInit();if(msg)er(msg)}
 function win(u){var d=document.createElement('div');d.className='win';d.innerHTML='<svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M14 27l8 8 16-17"/></svg><b>Добро пожаловать</b>'+Array.apply(0,Array(12)).map(function(_,k){return'<i style="--a:'+k*30+'deg"></i>'}).join('');A.appendChild(d);setTimeout(function(){enter(u);A.appendChild(d);d.classList.add('o');setTimeout(function(){d.remove()},450)},1000)}
-function er(m){var e=$('#er');if(!e)return;e.textContent=m||'';e.classList.remove('s');if(m){void e.offsetWidth;e.classList.add('s')}}
+function er(m,id){var e=$('#er');if(!e)return;e.textContent=m||'';e.classList.remove('s');A.querySelectorAll('.ff.bad').forEach(function(x){x.classList.remove('bad')});if(m){void e.offsetWidth;e.classList.add('s');var i=id&&$('#'+id);if(i){var f=i.parentNode;void f.offsetWidth;f.classList.add('bad');try{i.focus()}catch(x){}}}}
 function busy(b,p){b.disabled=true;b.classList.add('ld');var f=function(){b.disabled=false;b.classList.remove('ld')};return p.then(function(x){f();return x},function(x){f();throw x})}
 function R(){if(!S.u)return;A.classList.add('in');A.dataset.tab=S.tab;S.ani=S.nf?0:1;A.classList.toggle('fa',!!S.ani);S.nf=1;var c=S.D.chats,un=0;Object.keys(c).forEach(function(k){un+=c[k].un});
  var body=S.tab=='ct'?ctBody():S.tab=='chats'?'<div class="scr"><div class="ttl"><i class="tlg">'+LOGO+'</i><span class="ti">'+ltr('Чаты')+'</span><button class="pf pl" data-a="plus" aria-label="Создать">'+IC.plus+'</button><button class="pf" data-a="prof" style="'+avs(S.acc.c)+'">'+avt()+'</button></div><input class="srch" id="sq" placeholder="Поиск по чатам" value="'+esc(S.q)+'"><div id="fx"></div>'+cfH()+'<div id="cl"></div></div>'
@@ -992,18 +1010,18 @@ function upd(){if(!S.u)return;ttl();if(S.peer&&$('#ml')){var c=chat(S.peer);c.un
 function find(){var d=document.createElement('div');d.className='sh';d.innerHTML='<div><h3>Найти человека</h3>'+field('fq','Имя пользователя','text','например: durofin')+'<div class="err" id="fe"></div><div id="fr"></div><button class="btn" data-a="dofind">Найти</button><button class="btn tx" data-a="shclose">Закрыть</button></div>';A.appendChild(d);d.onclick=function(e){if(e.target==d)d.remove()};setTimeout(function(){var q=$('#fq');if(q){q.focus();q.oninput=function(){liveFind(q.value,$('#fr'))};q.onkeydown=function(e){if(e.key=='Enter'){var b=A.querySelector('[data-a=dofind]');if(b)b.click()}}}},100)}
 /* ---------- действия ---------- */
 var ACT={
- login:function(b){var u=$('#lu').value.trim().toLowerCase(),p=$('#lp').value,a=ls('nv_a_'+u);if(!a)return er('Аккаунт не найден на этом устройстве');busy(b,pwh(p,a.s)).then(function(h){if(h!=a.h)return er('Неверный пароль');ls('nv_lu',u);win(u)})},
+ login:function(b){var u=$('#lu').value.trim().toLowerCase(),p=$('#lp').value,a=ls('nv_a_'+u);if(!a)return er('Аккаунт не найден на этом устройстве','lu');busy(b,pwh(p,a.s)).then(function(h){if(h!=a.h)return er('Неверный пароль','lp');ls('nv_lu',u);win(u)})},
  goreg:function(){auth('r')},gologin:function(){auth('l')},
  reg:function(b){var n=$('#rn').value.trim(),u=$('#ru').value.trim().toLowerCase(),p=$('#rp').value;
-  if(!n)return er('Введите имя');if(!/^[a-z0-9_]{5,32}$/.test(u))return er('Имя пользователя: 5–32 символа, a–z, 0–9, _');if(p.length<6)return er('Пароль: минимум 6 символов');
+  if(!n)return er('Введите имя','rn');if(!/^[a-z0-9_]{5,32}$/.test(u))return er('Имя пользователя: 5–32 символа, a–z, 0–9, _','ru');if(p.length<6)return er('Пароль: минимум 6 символов','rp');
   S.R={n:n,u:u,p:p};er('');
-  busy(b,Promise.all([owner(u),Promise.resolve(ls('nv_a_'+u))])).then(function(x){if(x[0]||x[1])return er('Это имя пользователя уже занято');
+  busy(b,Promise.all([owner(u),Promise.resolve(ls('nv_a_'+u))])).then(function(x){if(x[0]||x[1])return er('Это имя пользователя уже занято','ru');
    return finish()}).catch(function(){er('Нет связи с сервером. Для регистрации нужен интернет')})},
  open:function(b){if(Date.now()-(S.lp||0)<700)return;if(b.dataset.v=='_fav')fav();openChat(b.dataset.v)},close:function(){if(history.state&&history.state.c)history.back();else dc()},send:doSend,
  find:find,pick:function(b){var r=(S.fr||{})[b.dataset.v];if(!r)return;if(r.k=='ch')subChan(r);else{var cc=chat(r.u,r.n,r.pk);cc.c=r.c;cc.e=r.e;cc.b=r.b;cc.ch=r.ch;cc.h=r.h}save();var d=$('.sh');if(d)d.remove();openChat(r.u)},shclose:function(){var s=$('.sh');if(s)s.remove()},
  dofind:function(b){var q=$('#fq').value.trim().toLowerCase().replace(/^@/,'');if(q==S.u)return($('#fe').textContent='Это вы');$('#fe').textContent='';busy(b,lookup(q)).then(function(r){if(!r)return($('#fe').textContent='Пользователь не найден');if(r.k=='ch')subChan(r);else{var cc=chat(r.u,r.n,r.pk);cc.c=r.c;cc.e=r.e;cc.b=r.b;cc.ch=r.ch;cc.h=r.h}save();var s=$('.sh');if(s)s.remove();openChat(r.u)},function(){$('#fe').textContent='Нет связи с сервером'})},
  tabchats:function(){sw('chats')},tabct:function(){sw('ct')},tabset:function(){sw('set')},
- th:function(b){S.set.th=b.dataset.v;ls('nv_set',S.set);vt(theme);b.parentNode.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x==b)})},seed:function(b){S.set.seed=b.dataset.v;ls('nv_set',S.set);vt(theme);b.parentNode.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x==b)})},
+ th:function(b){S.set.th=b.dataset.v;ls('nv_set',S.set);theme();b.parentNode.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x==b)})},seed:function(b){S.set.seed=b.dataset.v;ls('nv_set',S.set);theme();b.parentNode.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x==b)})},
  logout:logout,
  about:about,
  abcopy:function(){var t='NovaGram '+VER+'\nСборка: '+BUILD+'\nУстройство: '+sinfo()+'\nАккаунт: @'+S.u;(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){toast('Данные скопированы')},function(){toast('Не удалось скопировать')})},
@@ -1049,7 +1067,7 @@ var ACT={
  cpin:function(b){var x=S.D.chats[b.dataset.v],d=$('.sh');if(x){x.pin=!x.pin;save()}if(d)d.remove();drawList()},
  cread:function(b){var x=S.D.chats[b.dataset.v],d=$('.sh');if(x){x.un=0;save()}if(d)d.remove();drawList();ttl()},
  cdel:function(b){var d=$('.sh');delete S.D.chats[b.dataset.v];save();if(d)d.remove();drawList();ttl();toast('Чат удалён')},
- tgl:function(b){var v=b.dataset.v,cur=(v=='np'||v=='pv')?S.set[v]!==false:!!S.set[v],on=!cur,g=b.querySelector('.tg');S.set[v]=on;ls('nv_set',S.set);g.classList.toggle('on',on);if(v=='pv')beat();if(v=='am'||v=='na'||v=='cl')vt(theme);
+ tgl:function(b){var v=b.dataset.v,cur=(v=='np'||v=='pv')?S.set[v]!==false:!!S.set[v],on=!cur,g=b.querySelector('.tg')||{classList:{toggle:function(){},add:function(){},remove:function(){}}};S.set[v]=on;ls('nv_set',S.set);g.classList.toggle('on',on);if(v=='pv')beat();if(v=='am'||v=='na'||v=='cl')theme();
   if(v=='nt'&&on){if(typeof Notification=='undefined'){S.set.nt=false;ls('nv_set',S.set);g.classList.remove('on');return toast('Браузер не поддерживает уведомления')}Notification.requestPermission().then(function(p){if(p!='granted'){S.set.nt=false;ls('nv_set',S.set);g.classList.remove('on');toast('Разрешите уведомления в настройках браузера')}else pushSub()})}
   if(v=='nt'&&!on)pushOff()},
  pin:function(){if(!ls('nv_pin_'+S.u))return lock('set');var d=document.createElement('div');d.className='sh';d.innerHTML='<div><h3>Код-пароль</h3><button class="btn t2" data-a="pinchg">Изменить код</button><button class="btn t2" data-a="pinoff">Выключить код</button><button class="btn tx" data-a="shclose">Закрыть</button></div>';A.appendChild(d);d.onclick=function(e){if(e.target==d)d.remove()}},
@@ -1080,7 +1098,7 @@ var ACT={
  blk:function(){var ks=Object.keys((S.D&&S.D.blk)||{});sheet('<h3>Заблокированные</h3>'+(ks.length?ks.map(function(k){return'<button class="btn t2" data-a="cblk" data-v="'+esc(k)+'">'+esc((S.D.chats[k]&&S.D.chats[k].n)||k)+' · разблокировать</button>'}).join(''):'<div class="hn" style="margin:0 8px 14px">Вы никого не блокировали</div>')+'<button class="btn tx" data-a="shclose">Закрыть</button>')},
  prof:prof,pclose:function(){var p=$('.pr');if(!p)return;if(S.at){clearTimeout(S.at);S.at=0;dosave()}p.classList.add('out');setTimeout(function(){p.remove();R()},260)},
  pcol:function(b){S.pc=+b.dataset.v;pdraw();bump();asave()},pemo:function(b){S.pe=b.dataset.v;pdraw();bump();asave()},
- eye:function(b){var i=b.parentNode.querySelector('input'),h=i.type=='password';i.type=h?'text':'password';b.textContent=h?'Скрыть':'Показать'},
+ eye:function(b){var i=b.parentNode.querySelector('input'),h=i.type=='password';i.type=h?'text':'password';b.classList.toggle('on',h);b.setAttribute('aria-label',h?'Скрыть пароль':'Показать пароль')},
  ppw:function(){var d=document.createElement('div');d.className='sh';d.innerHTML='<div><h3>Новый пароль</h3>'+pf2('po','Текущий пароль','password')+pf2('pw','Новый пароль','password')+'<div class="err" id="er"></div><button class="btn" data-a="ppsave">Сменить пароль</button><button class="btn tx" data-a="shclose">Отмена</button></div>';A.appendChild(d);d.onclick=function(e){if(e.target==d)d.remove()}},
  ppsave:function(b){var o=$('#po').value,w=$('#pw').value;if(w.length<6)return er('Новый пароль: минимум 6 символов');busy(b,pwh(o,S.acc.s)).then(function(h){if(h!=S.acc.h)return er('Текущий пароль неверный');var s=rs(16);return pwh(w,s).then(function(h2){S.acc.s=s;S.acc.h=h2;ls('nv_a_'+S.u,S.acc);var d=$('.sh');if(d)d.remove();toast('Пароль изменён')})})},
  wipe:function(){if(!confirm('Удалить аккаунт с этого устройства? Чаты и ключи шифрования будут стёрты. Имя пользователя на сервере останется занятым.'))return;var u=S.u;['nv_a_','nv_d_','nv_k_'].forEach(function(k){ls(k+u,null)});logout()}};
@@ -1681,7 +1699,7 @@ setBody=function(){
   if(g=='acc'){ex=nvSec('Ваш профиль','Данные аккаунта',nvRow(0,NVI.name,'','','Имя',esc(S.acc.n||''))+nvRow(1,NVI.user,'nvcp','@'+S.u,'Имя пользователя','@'+esc(S.u))+nvRow(2,NVI.key,'nvcp','','Отпечаток ключа','<span id="nvfp" style="font-family:ui-monospace,monospace;letter-spacing:.5px">вычисляется…</span>'),70);nvFp()}
   return h.replace('<div class="sfoot"',ex+'<div class="sfoot"');
 };
-function nvRefresh(){var scr=document.querySelector('.scr.sx'),q=document.getElementById('nvsq');if(!scr||(q&&q.value))return;var old=scr.querySelector('.nvbody');NVquiet=true;var t=document.createElement('div');t.innerHTML=setBody();NVquiet=false;var nb=t.querySelector('.nvbody');if(old&&nb){nb.style.animation='none';old.replaceWith(nb)}}
+function nvRefresh(){var scr=document.querySelector('.scr.sx'),q=document.getElementById('nvsq');if(!scr||(q&&q.value))return;var old=scr.querySelector('.nvbody');NVquiet=true;var t=document.createElement('div');t.innerHTML=setBody();NVquiet=false;var nb=t.querySelector('.nvbody');if(old&&nb){nb.classList.add('nvnoin');nb.style.animation='none';old.replaceWith(nb)}}
 function nvSearch(v){
   var scr=document.querySelector('.scr.sx');if(!scr)return;
   var q=v.trim().toLowerCase(),bar=scr.querySelector('.nvtb'),old=scr.querySelector('.nvbody');if(!old)return;
@@ -1700,7 +1718,7 @@ ACT.nvsd=function(b){S.set.seed=SEEDS[+b.dataset.v];ls('nv_set',S.set);theme();b
 ACT.nvcp=function(b){var tx=b.dataset.v||((b.querySelector('small')||{}).textContent||'');(navigator.clipboard?navigator.clipboard.writeText(tx):Promise.reject()).then(function(){toast('Скопировано')},function(){toast('Не удалось скопировать')})};
 ACT.nvping=function(b){var el=document.getElementById('nvpg'),t0=performance.now();if(el)el.textContent='Измеряю…';F(FB+'/names.json?shallow=true').then(function(){if(el)el.textContent='Сервер ответил за '+Math.round(performance.now()-t0)+' мс'}).catch(function(){if(el)el.textContent='Сервер не отвечает'})};
 ACT.nvtest=function(){if(typeof Notification=='undefined'||Notification.permission!='granted')return toast('Сначала разрешите уведомления');var o={body:'Тестовое уведомление работает',icon:undefined};navigator.serviceWorker&&navigator.serviceWorker.getRegistration?navigator.serviceWorker.getRegistration().then(function(r){if(r)return r.showNotification('NovaGram',o);new Notification('NovaGram',o)}).catch(function(){toast('Не удалось показать уведомление')}):new Notification('NovaGram',o)};
-document.addEventListener('click',function(e){if(S.st=='sec'&&e.target.closest&&e.target.closest('[data-a=tgl]'))setTimeout(nvRefresh,380)});
+document.addEventListener('click',function(e){if(S.st=='sec'&&!document.querySelector('.pg.pr')&&e.target.closest&&e.target.closest('[data-a=tgl]'))setTimeout(nvRefresh,380)});
 new MutationObserver(function(){var l=!!document.querySelector('.lk');if(l)NVlk=1;else if(NVlk){NVlk=0;if(S.st=='sec')setTimeout(nvRefresh,200)}}).observe(document.body,{childList:true,subtree:true});
 
 /* ========== NovaGram: смена цветов без подёргивания ========== */
@@ -1714,40 +1732,12 @@ function nvQ(fn){
 }
 ACT.nvsd=function(b){nvQ(function(){S.set.seed=SEEDS[+b.dataset.v];ls('nv_set',S.set);theme();b.parentNode.querySelectorAll('.nvdot').forEach(function(x){x.classList.toggle('on',x==b)})})};
 ACT.nvth=function(b){nvQ(function(){S.set.th=b.dataset.v;ls('nv_set',S.set);theme();b.parentNode.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x==b)})})};
-
-/* ========== NovaGram: журнал ошибок, «Сообщить о проблеме», баннер «Нет связи» ========== */
-var NVLOG=[];
-function nvLog(k,m){NVLOG.push({t:new Date().toISOString(),k:k,m:String(m).slice(0,300)});if(NVLOG.length>50)NVLOG.shift()}
-window.addEventListener('error',function(e){nvLog('error',(e.message||'')+' '+(e.filename||'')+':'+(e.lineno||''))});
-window.addEventListener('unhandledrejection',function(e){nvLog('promise',(e.reason&&e.reason.message)||e.reason)});
-ACT.nvrep=function(){
-  var rep={app:'NovaGram',version:'M7',time:new Date().toISOString(),browser:navigator.userAgent,online:navigator.onLine,
-    screen:(S.tab||'')+'/'+(S.peer?'chat':'list')+'/'+(S.st||''),errors:NVLOG};
-  var txt=JSON.stringify(rep,null,2);
-  var fallback=function(){var ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();var ok=false;try{ok=document.execCommand('copy')}catch(e){}ta.remove();toast(ok?'Отчёт скопирован. Пришлите его разработчику':'Не удалось скопировать')};
-  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(function(){toast('Отчёт скопирован. Пришлите его разработчику')},fallback);
-  else fallback();
-};
-var nvSbBase=setBody;
-setBody=function(){
-  var h=nvSbBase();
-  if(S.st!='acc')return h;
-  var i=h.indexOf('<div class="sfoot"');
-  if(i<0)return h;
-  var card='<div class="sec">Поддержка<span class="sd">Если что-то сломалось</span></div><div class="card" style="--i:70"><div class="row" data-a="nvrep"><div class="ico" style="background:color-mix(in srgb,#8a8f98 34%,var(--card2));color:var(--tx)"><b style="font-size:12px">!</b></div><div class="t"><b>Сообщить о проблеме</b><small>Скопировать отчёт об ошибках и версии</small></div><span>›</span></div></div>';
-  return h.slice(0,i)+card+h.slice(i);
-};
-function nvBanner(){
-  var b=document.getElementById('nvoff');
-  if(!navigator.onLine){
-    if(!b){b=document.createElement('div');b.id='nvoff';document.body.appendChild(b)}
-    b.textContent='Нет связи. Сообщения и черновики сохраняются на устройстве';
-    b.style.display='block';
-  }else if(b)b.style.display='none';
-}
-window.addEventListener('offline',nvBanner);
-window.addEventListener('online',nvBanner);
-nvBanner();
+/* ========== NovaGram: оформление без дёрганий ========== */
+var NVap=appr;
+appr=function(){NVap();var ps=A.querySelectorAll('.pg.pr'),p=ps[ps.length-1];if(p)setTimeout(function(){p.classList.add('nvdone')},700)};
+ACT.appr=appr;
+document.addEventListener('click',function(e){var p=e.target&&e.target.closest&&e.target.closest('.pg.pr');if(p)p.classList.add('nvdone')},true);
+['th','seed','aps','tgl'].forEach(function(k){var f=ACT[k];if(!f)return;ACT[k]=function(b){var pb=b&&b.closest&&b.closest('.pb'),y=pb?pb.scrollTop:0,r;try{r=f.apply(this,arguments)}catch(e){console.error(e)}if(pb){pb.scrollTop=y;requestAnimationFrame(function(){pb.scrollTop=y})}return r}});
 })();
 </script>
 </body>
